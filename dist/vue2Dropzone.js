@@ -650,7 +650,11 @@
             return this.uploadFiles([e])
           }, t.prototype.uploadFiles = function (e) {
             var i, o, s, a, l, d, p, u, c, h, f, m, g, v, z, b, y, w, F, x, k, E, C, L, A, T, S, D, M, _, N, I, U, R;
-            for (F = new XMLHttpRequest, x = 0, L = e.length; x < L; x++) i = e[x], i.xhr = F;
+            for (F = new XMLHttpRequest, x = 0, L = e.length; x < L; x++) {
+              i = e[x]
+              i.xhr = F
+              this.options.url = i.uploadUrl // アップロードURLを写真ごとに更新する
+            }
             m = r(this.options.method, e), y = r(this.options.url, e), F.open(m, y, !0), F.withCredentials = !!this.options.withCredentials, z = null, s = function (t) {
               return function () {
                 var n, r, o;
@@ -706,9 +710,17 @@
                   for (I = u.options, C = 0, S = I.length; C < S; C++) g = I[C], g.selected && o.append(c, g.value);
                 else(!h || "checkbox" !== (U = h.toLowerCase()) && "radio" !== U || u.checked) && o.append(c, u.value);
             for (p = D = 0, R = e.length - 1; 0 <= R ? D <= R : D >= R; p = 0 <= R ? ++D : --D) o.append(this._getParamName(p), e[p], this._renameFilename(e[p].name));
-            return this.submitRequest(F, o, e)
+
+            /*
+             tにはFormDataクラスが入っている.
+             今回、s3へ写真を直接アップロードするため、 写真単体を送信するように修正
+            */
+            // return this.submitRequest(F, o, e)
+            return this.submitRequestForS3(F, e[0])
           }, t.prototype.submitRequest = function (e, t, i) {
             return e.send(t)
+        }, t.prototype.submitRequestForS3 = function (e, file) {
+            return e.send(file)
           }, t.prototype._finished = function (e, i, n) {
             var r, o, s;
             for (o = 0, s = e.length; o < s; o++) r = e[o], r.status = t.SUCCESS, this.emit("success", r, i, n), this.emit("complete", r);
@@ -980,3 +992,4 @@
     }
   }])
 });
+
